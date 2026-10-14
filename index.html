@@ -1,29 +1,127 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Agent Randomizer</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
-<link rel="stylesheet" href="style.css"></head><body>
-<canvas id="wave"></canvas>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Agent Randomizer</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="wave"></canvas>
 
-<a class="logo" href="#home" aria-label="Logo"><img src="assets/images/logo.png" alt="Logo" onerror="this.replaceWith('LOGO')"></a>
-<nav id="nav"><a href="#home" class="on">Home</a><a href="#agents">Agents</a><a href="#team">Teams</a><a href="#about">About Me</a><a href="#projects">Projects</a><a href="#contact">Contact</a></nav>
+    <a class="logo" href="#home" aria-label="Logo">
+      <img src="assets/images/logo.png" alt="Logo" onerror="this.replaceWith('LOGO')" />
+    </a>
 
-<section id="home"><h1>Agent<span>Randomizer</span></h1><p style="font-size:clamp(18px,2.4vw,26px);margin:30px 0 24px">for indecisive multi-role players</p><div><button class="btn" onclick="location.hash='agents'">Pick a role</button></div></section>
+    <nav id="nav">
+      <a href="#home" class="on">Home</a>
+      <a href="#agents">Agents</a>
+      <a href="#team">Teams</a>
+      <a href="#about">About Me</a>
+      <a href="#projects">Projects</a>
+      <a href="#contact">Contact</a>
+    </nav>
 
-<section id="agents"><div class="stage"><div class="roles" id="roleList"></div><div class="panel" id="panel"></div></div></section>
+    <main>
+      <section id="home">
+        <h1>Agent<span>Randomizer</span></h1>
+        <p style="font-size: clamp(18px, 2.4vw, 26px); margin: 30px 0 24px">
+          for indecisive multi-role players
+        </p>
+        <div>
+          <button class="btn" onclick="location.hash='agents'">Pick a role</button>
+        </div>
+      </section>
 
-<section id="team"><h2>Agent compatibility</h2><p class="mut">Opinion-based pairings, picked for how the abilities work together. Choose an agent to see who fits with them.</p>
-<div><select id="teamSel" aria-label="Agent"></select></div><div class="cards" id="teamOut"></div></section>
+      <section id="agents">
+        <div class="stage">
+          <div class="roles" id="roleList"></div>
+          <div class="panel" id="panel"></div>
+        </div>
+      </section>
 
-<section id="about"><div class="about-copy"><h2>About Me</h2><p>Hi! I'm <strong>Francine Nicole De Guzman</strong>, also known as <strong>Rumi</strong> or <strong>rumimiru</strong>. I'm an Information Technology student that loves designing, digital art, and creative coding weeeeeehhh</p><p>I enjoy turning ideas into visually appealing and interactive experiences. I'm currently learning React, Angular, and Flutter while continuing to improve my design and programming skills.</p><p>When I'm not coding, I enjoy drawing, playing games, and exploring new creative ideas. My goal is to bring my imagination to life through technology. - ✦</p></div><img class="about-portrait" src="assets/images/aboutme.png" alt="Illustration of Rumi working at a computer"></section>
+      <section id="team">
+        <h2>Agent compatibility</h2>
+        <p class="mut">
+          Opinion-based pairings, picked for how the abilities work together. Choose an agent to see
+          who fits with them.
+        </p>
+        <div>
+          <select id="teamSel" aria-label="Agent"></select>
+        </div>
+        <div class="cards" id="teamOut"></div>
+      </section>
 
-<section id="projects"><h2>Projects</h2><div class="cards"><div class="card">To be updated.</div></div></section>
+      <section id="about">
+        <div class="about-copy">
+          <h2>About Me</h2>
+          <p>
+            Hi! I'm <strong>Francine Nicole De Guzman</strong>, also known as <strong>Rumi</strong> or
+            <strong>rumimiru</strong>. I'm an Information Technology student that loves designing,
+            digital art, and creative coding weeeeeehhh
+          </p>
+          <p>
+            I enjoy turning ideas into visually appealing and interactive experiences. I'm currently
+            learning React, Angular, and Flutter while continuing to improve my design and
+            programming skills.
+          </p>
+          <p>
+            When I'm not coding, I enjoy drawing, playing games, and exploring new creative ideas. My
+            goal is to bring my imagination to life through technology. - ✦
+          </p>
+        </div>
+        <img
+          class="about-portrait"
+          src="assets/images/aboutme.png"
+          alt="Illustration of Rumi working at a computer"
+        />
+      </section>
 
-<footer id="contact"><h2>Contacts</h2><a class="lk" href="mailto:shincine104@gmail.com">Email</a><a class="lk" href="https://github.com/rumimiru" target="_blank" rel="noopener">GitHub</a><a class="lk" href="https://www.reddit.com/user/rumimiruu/" target="_blank" rel="noopener">Reddit</a></footer>
+      <section id="projects">
+        <h2>Projects</h2>
+        <div class="cards">
+          <div class="card">To be updated.</div>
+        </div>
+      </section>
+    </main>
 
-<div id="player"><button id="lbl" aria-label="Show music player">&#9835;</button>
-<div id="box"><div id="ttl" role="status" aria-live="polite">—</div><div id="cd"><i></i></div><div class="ctl">
-<a id="track" href="#" download title="Download current track">&#128279;</a><button id="prev" aria-label="Previous">&#9198;</button><button id="pp" aria-label="Play or pause">&#9654;</button><button id="next" aria-label="Next">&#9197;</button><button id="mute" aria-label="Mute">&#128266;</button><input id="vol" type="range" min="0" max="1" step=".05" value=".5" aria-label="Volume"></div></div></div>
+    <footer id="contact">
+      <h2>Contacts</h2>
+      <a class="lk" href="mailto:shincine104@gmail.com">Email</a>
+      <a class="lk" href="https://github.com/rumimiru" target="_blank" rel="noopener">GitHub</a>
+      <a class="lk" href="https://www.reddit.com/user/rumimiruu/" target="_blank" rel="noopener">
+        Reddit
+      </a>
+    </footer>
 
-<script src="script.js"></script></body></html>
+    <div id="player">
+      <button id="lbl" aria-label="Show music player">&#9835;</button>
+      <div id="box">
+        <div id="ttl" role="status" aria-live="polite">—</div>
+        <div id="cd"><i></i></div>
+        <div class="ctl">
+          <a id="track" href="#" download title="Download current track">&#128279;</a>
+          <button id="prev" aria-label="Previous">&#9198;</button>
+          <button id="pp" aria-label="Play or pause">&#9654;</button>
+          <button id="next" aria-label="Next">&#9197;</button>
+          <button id="mute" aria-label="Mute">&#128266;</button>
+          <input
+            id="vol"
+            type="range"
+            min="0"
+            max="1"
+            step=".05"
+            value=".5"
+            aria-label="Volume"
+          />
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
