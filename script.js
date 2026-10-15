@@ -150,6 +150,8 @@ const S = {
   role: null,
   agent: null,
   error: "",
+  instantPick: false,
+  roulette: [],
   on: new Set(AG.map(a => a.n)),
 };
 
@@ -182,17 +184,93 @@ function pool() {
 function roll() {
   const p = pool();
 
-  if (p.length < 2) {
+  if (p.length < 1) {
     S.agent = null;
-    S.error = "You need 2 or more agents selected to roll.";
+    S.error = "Select at least one agent to roll.";
     S.view = "pick";
     return draw();
   }
 
   S.error = "";
   S.agent = p[Math.floor(Math.random() * p.length)];
-  S.view = "result";
+  if (S.instantPick || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    S.view = "result";
+    return draw();
+  }
+
+  const cycles = Math.ceil(35 / p.length);
+  S.roulette = Array.from({ length: cycles }, (_, index) => {
+    if (index < cycles - 1) return shuffle(p);
+    return [...shuffle(p.filter(agent => agent.n !== S.agent.n)), S.agent];
+  }).flat();
+  S.view = "rolling";
   draw();
+  spinToAgent(S.roulette, S.agent);
+}
+
+function rouletteCard(agent, selected = false) {
+  if (!agent) return '<div class="roulette-spacer" aria-hidden="true"></div>';
+  return `<div class="roulette-card${selected ? " selected" : ""}"${selected ? ' aria-current="true"' : ""}>${mono(agent.n, agent.r)}<span>${H(agent.n)}</span></div>`;
+}
+
+function rouletteMarkup(agents, selectedIndex = -1, rolling = false) {
+  if (!agents.length) {
+    return '<p class="mut roulette-empty">No agents are enabled for this role. Customize your pool to add some.</p>';
+  }
+
+  const placeholders = rolling ? `${rouletteCard(null)}${rouletteCard(null)}` : "";
+  const trailing = rolling ? `${rouletteCard(null)}${rouletteCard(null)}` : "";
+  return `<div class="roulette-window${rolling ? " rolling" : ""}"${rolling ? ' id="rouletteWindow"' : ""} role="group" aria-label="Agent roulette"><div class="roulette-track"${rolling ? ' id="rouletteTrack"' : ""}>${placeholders}${agents.map((agent, index) => rouletteCard(agent, index === selectedIndex)).join("")}${trailing}</div></div>`;
+}
+
+function shuffle(items) {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function sampleWithoutReplacement(items, count) {
+  return shuffle(items).slice(0, count);
+}
+
+function spinToAgent(sequence, winner) {
+  const track = $("#rouletteTrack");
+  const windowElement = $("#rouletteWindow");
+  let winnerIndex = -1;
+  for (let i = sequence.length - 1; i >= 0; i--) {
+    if (sequence[i].n === winner.n) {
+      winnerIndex = i;
+      break;
+    }
+  }
+  const cardWidth = track.querySelector(".roulette-card").getBoundingClientRect().width;
+  const gap = parseFloat(getComputedStyle(track).columnGap);
+  const step = cardWidth + gap;
+  const startOffset = -2 * step;
+  const targetOffset = -winnerIndex * step;
+  let timeout;
+
+  const finish = () => {
+    if (S.view !== "rolling") return;
+    clearTimeout(timeout);
+    S.view = "result";
+    draw();
+  };
+
+  track.addEventListener("transitionend", event => {
+    if (event.propertyName === "transform") finish();
+  }, { once: true });
+  timeout = setTimeout(finish, 4500);
+  track.style.transition = "none";
+  track.style.transform = `translateX(${startOffset}px)`;
+  windowElement.offsetWidth;
+  track.style.transition = "";
+  requestAnimationFrame(() => {
+    track.style.transform = `translateX(${targetOffset}px)`;
+  });
 }
 
 // Restore the initial randomizer state and enabled-agent pool.
@@ -201,6 +279,8 @@ function resetRandomizer() {
   S.role = null;
   S.agent = null;
   S.error = "";
+  S.instantPick = false;
+  S.roulette = [];
   S.view = "pick";
   draw();
 }
@@ -219,18 +299,40 @@ function drawPanel() {
   }
 
   if (S.view === "pick") {
-    const p = AG.filter(a => scope().includes(a.r));
-    P.innerHTML = `<h2><span class="tag">${S.role}</span></h2><p class="mut">${S.role === "Flex" ? "Every role is in the pool." : ROLES[S.role]}</p>${S.error ? `<p class="validation" role="alert">${H(S.error)}</p>` : ""}<div class="pool">${p.map(a => `<div class="ag${S.on.has(a.n) ? "" : " out"}">${mono(a.n, a.r)}${H(a.n)}</div>`).join("")}</div><div class="row"><button class="btn" id="go">Roll</button><button class="btn" id="cu">Customize</button></div>`;
+    const p = pool();
+    const preview = sampleWithoutReplacement(p, Math.min(5, p.length));
+    P.innerHTML = `<h2><span class="tag">${S.role}</span></h2><p class="mut">${S.role === "Flex" ? "Every role is in the pool." : ROLES[S.role]}</p>${S.error ? `<p class="validation" role="alert">${H(S.error)}</p>` : ""}${rouletteMarkup(preview, Math.floor(preview.length / 2))}<div class="row"><button class="btn" id="go">Roll</button><button class="btn" id="cu">Customize</button></div><label class="instant-toggle"><input id="instantPick" type="checkbox"${S.instantPick ? " checked" : ""}> Pick instantly</label>`;
     $("#go").onclick = roll;
+    $("#instantPick").onchange = event => (S.instantPick = event.target.checked);
     $("#cu").onclick = () => {
       S.error = "";
       S.view = "custom";
       draw();
     };
+  } else if (S.view === "rolling") {
+    P.innerHTML = `<h2><span class="tag">${S.role}</span></h2><p class="mut">${S.role === "Flex" ? "Every role is in the pool." : ROLES[S.role]}</p><p class="rolling-status" role="status" aria-live="polite">Rolling...</p>${rouletteMarkup(S.roulette, -1, true)}<div class="row"><button class="btn" id="go" disabled>Rolling...</button><button class="btn" id="cu">Customize</button><button class="btn" id="rp">Role picker</button></div><label class="instant-toggle"><input id="instantPick" type="checkbox"${S.instantPick ? " checked" : ""}> Pick instantly</label>`;
+    $("#instantPick").onchange = event => (S.instantPick = event.target.checked);
+    $("#cu").onclick = () => {
+      S.view = "custom";
+      draw();
+    };
+    $("#rp").onclick = () => {
+      S.view = "pick";
+      S.role = null;
+      draw();
+    };
   } else if (S.view === "result") {
     const a = S.agent;
-    P.innerHTML = `<div class="big">${mono(a.n, a.r, true)}<div><h2 style="font-size:clamp(36px,6vw,72px)">${H(a.n).toUpperCase()}</h2><h3 class="tag" style="margin:0 0 8px">${a.r}</h3><p>${H(a.n)} is a ${a.r} in VALORANT. ${ROLES[a.r]}</p></div></div><div class="row"><button class="btn" id="go">Roll again?</button><button class="btn" id="cu">Customize</button><button class="btn" id="rp">Role picker</button></div>`;
+    const p = pool();
+    const extras = sampleWithoutReplacement(p.filter(agent => agent.n !== a.n), 4);
+    const resultLineup = [null, null, null, null, null];
+    resultLineup[2] = a;
+    [1, 3, 0, 4].forEach((index, i) => {
+      if (extras[i]) resultLineup[index] = extras[i];
+    });
+    P.innerHTML = `<h2>Agent selected</h2>${rouletteMarkup(resultLineup, 2)}<div class="selected-copy"><h3>${H(a.n).toUpperCase()}</h3><span class="result-role">${a.r}</span><p>${H(a.n)} is a ${a.r} in VALORANT. ${ROLES[a.r]}</p></div><div class="row"><button class="btn" id="go">Roll again?</button><button class="btn" id="cu">Customize</button><button class="btn" id="rp">Role picker</button></div><label class="instant-toggle"><input id="instantPick" type="checkbox"${S.instantPick ? " checked" : ""}> Pick instantly</label>`;
     $("#go").onclick = roll;
+    $("#instantPick").onchange = event => (S.instantPick = event.target.checked);
     $("#cu").onclick = () => {
       S.view = "custom";
       draw();
@@ -241,14 +343,14 @@ function drawPanel() {
       draw();
     };
   } else {
-    const rs = !S.role || S.role === "Flex" ? Object.keys(DATA) : [S.role];
+    const rs = Object.keys(DATA);
     P.innerHTML =
-      `<h2>Customization</h2><p class="mut">Tap an agent to keep or remove it. Tap a role icon to switch the whole role on or off.${S.role && S.role !== "Flex" ? " Showing " + S.role + " only." : ""}</p>` +
+      `<h2>Customization</h2><p class="mut">All agents are shown here. Tap an agent to keep or remove it, or tap a role icon to switch a whole role on or off.</p>` +
       rs
         .map(r => {
           const all = AG.filter(a => a.r === r);
           const off = !all.some(a => S.on.has(a.n));
-          return `<div class="rowline${off ? " off" : ""}"><button class="role${off ? " off" : ""}" data-rt="${r}" aria-label="Toggle ${r}">${ico(r)}</button><div class="pool">${all.map(a => `<button class="ag${S.on.has(a.n) ? "" : " out"}" data-a="${H(a.n)}" aria-pressed="${S.on.has(a.n)}"><span class="badge">${S.on.has(a.n) ? "✓" : "✕"}</span>${mono(a.n, a.r)}${H(a.n)}</button>`).join("")}</div></div>`;
+          return `<div class="rowline${off ? " off" : ""}"><button class="role${off ? " off" : ""}" data-rt="${r}" aria-label="Toggle ${r}">${ico(r)}<span>${r}</span></button><div class="pool">${all.map(a => `<button class="ag${S.on.has(a.n) ? "" : " out"}" data-a="${H(a.n)}" aria-pressed="${S.on.has(a.n)}"><span class="badge">${S.on.has(a.n) ? "✓" : "✕"}</span>${mono(a.n, a.r)}${H(a.n)}</button>`).join("")}</div></div>`;
         })
         .join("") +
       `<div class="row"><button class="btn" id="dn">Done</button><button class="btn" id="reset">Reset</button></div>`;
@@ -281,6 +383,7 @@ function drawPanel() {
 }
 
 function draw() {
+  $("#agents .stage").classList.toggle("focused", S.view !== "pick");
   drawRoles();
   drawPanel();
 }
