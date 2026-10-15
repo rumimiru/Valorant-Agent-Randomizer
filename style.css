@@ -97,6 +97,13 @@ section {
   grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.65fr);
   align-items: center;
   gap: clamp(24px, 6vw, 80px);
+  padding-top: 48px;
+}
+
+#team {
+  min-height: 0;
+  padding-top: 48px;
+  padding-bottom: 48px;
 }
 
 #about .about-copy {
@@ -357,7 +364,10 @@ p {
 }
 
 .row {
+  width: 100%;
   display: flex;
+  justify-content: center;
+  align-items: center;
   gap: 12px;
   flex-wrap: wrap;
 }
@@ -498,6 +508,9 @@ a.lk {
 }
 
 #box {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -508,12 +521,19 @@ a.lk {
   transition: 0.3s;
 }
 
-#player:hover #box,
-#player.open #box,
-#player:focus-within #box {
+#player.open #box {
   opacity: 1;
   pointer-events: auto;
   transform: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #player:hover #box,
+  #player:focus-within #box {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
 }
 
 #cd {
@@ -620,7 +640,7 @@ a.lk {
   #about {
     grid-template-columns: 1fr;
     gap: 12px;
-    padding-top: 100px;
+    padding-top: 72px;
     padding-bottom: 48px;
   }
 
@@ -653,5 +673,156 @@ a.lk {
 
   html {
     scroll-behavior: auto;
+  }
+}
+
+/* Compact horizontal agent roulette */
+.stage.focused {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.stage.focused .roles {
+  display: none;
+}
+
+.roulette-window {
+  --roulette-slot: clamp(58px, 12vw, 100px);
+  --roulette-gap: clamp(6px, 1.5vw, 14px);
+  position: relative;
+  display: flex;
+  width: min(100%, calc(var(--roulette-slot) * 5 + var(--roulette-gap) * 4));
+  overflow: hidden;
+  align-self: center;
+  margin: 12px 0;
+}
+
+.roulette-track {
+  display: flex;
+  width: max-content;
+  gap: var(--roulette-gap);
+  margin-inline: auto;
+  transition: transform 4s cubic-bezier(0.08, 0.76, 0.12, 1);
+  will-change: transform;
+}
+
+.roulette-window.rolling .roulette-track {
+  margin-inline: 0;
+}
+
+.roulette-card {
+  display: flex;
+  flex: 0 0 var(--roulette-slot);
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--mut);
+  font-size: 12px;
+  text-align: center;
+}
+
+.roulette-spacer {
+  flex: 0 0 var(--roulette-slot);
+  height: calc(var(--roulette-slot) + 22px);
+}
+
+.roulette-card .mono {
+  width: var(--roulette-slot);
+  height: var(--roulette-slot);
+  border-radius: 12px;
+  opacity: 0.62;
+  transition: opacity 0.2s, transform 0.2s, border-color 0.2s;
+}
+
+.roulette-card.selected {
+  color: var(--fg);
+  font-weight: 700;
+}
+
+.roulette-card.selected .mono {
+  opacity: 1;
+  transform: scale(1.08);
+  border-color: var(--red);
+  box-shadow: 0 0 20px #c4504f66;
+}
+
+.roulette-window.rolling::after {
+  position: absolute;
+  top: 0;
+  bottom: 20px;
+  left: 50%;
+  width: var(--roulette-slot);
+  border: 2px solid var(--red);
+  border-radius: 14px;
+  content: "";
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.roulette-empty {
+  align-self: center;
+  text-align: center;
+}
+
+.rolling-status {
+  align-self: center;
+  margin: 0;
+  color: var(--mut);
+  font-weight: 600;
+}
+
+.selected-copy {
+  align-self: center;
+  text-align: center;
+}
+
+.selected-copy h3 {
+  margin: 0;
+  font-size: clamp(24px, 4vw, 40px);
+  line-height: 1.1;
+}
+
+.result-role {
+  display: block;
+  margin-top: 4px;
+  color: var(--red);
+  font-size: clamp(14px, 2vw, 19px);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.selected-copy p {
+  margin: 4px 0 0;
+}
+
+.instant-toggle {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--mut);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.instant-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--red);
+}
+
+@media (max-width: 520px) {
+  .roulette-window {
+    --roulette-slot: clamp(48px, 16vw, 74px);
+    --roulette-gap: 5px;
+  }
+
+  .roulette-card {
+    font-size: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roulette-track {
+    transition: none;
   }
 }
