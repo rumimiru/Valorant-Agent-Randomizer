@@ -5,8 +5,8 @@ Choose a role (or Flex), roll an agent, and customize which agents are in your p
 
 ## Features
 
-- **Agent randomizer:** pick Initiator, Controller, Duelist, Sentinel or Flex. Hovering a role icon enlarges it, and clicking it turns it red and shows the agents in that role. Roll to get a random agent, then Roll again, Customize or go back to the role picker.
-- **Customization:** mark which agents you own. Tap an agent to keep or remove it, or tap a role icon to switch a whole role on or off. Only the agents you keep can be rolled.
+- **Agent randomizer:** pick Initiator, Controller, Duelist, Sentinel or Flex. Hovering a role icon enlarges it, and clicking it turns it red. Roll to spin through a five-agent horizontal roulette with the selected agent centered, or enable instant pick to skip the animation.
+- **Customization:** all agents are shown together by role. Tap an agent to keep or remove it, or tap a role icon to switch a whole role on or off. Only the agents you keep can be rolled.
 - **Agent compatibility:** opinion-based team pairings with a short reason, for example Yoru with Astra. Pairs live in the `PAIRS` list in `script.js`.
 - **Music player:** a spinning CD in the bottom-right corner that appears on hover, with link, previous, play/pause, next, mute and volume controls. The background waveform reacts to the audio.
 - **Sections:** Home, Agents, Teams, About Me, Projects and Contact. The nav highlights the section you are in.
