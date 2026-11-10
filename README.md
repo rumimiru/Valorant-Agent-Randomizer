@@ -22,7 +22,7 @@ agent-randomizer/
 ```
 
 ## Run it
-
+**Explore the project:** [Valorant Agent Randomizer](https://valo-agent-randomizer.vercel.app/)
 No build step. Open `index.html` in a browser, or serve the folder with any static server. Audio files work best when served over http (for example `python -m http.server`) so the waveform can read them.
 
 ## Customize it
